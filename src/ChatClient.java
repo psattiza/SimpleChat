@@ -46,12 +46,10 @@ public class ChatClient extends JFrame implements Runnable {
 		{
 		    public void windowClosing(WindowEvent e)
 		    {
-		    	System.out.println("Exiting code here");
 		    	try {
 		    		
 					ChatClient.this.o.writeUTF(name.getText() + " has left the chat! " );
 					ChatClient.this.o.flush();
-			    	System.out.println("Did it work?");
 			    	Thread.sleep(100);
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block

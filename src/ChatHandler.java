@@ -19,12 +19,13 @@ public class ChatHandler extends Thread {
 	public void run() {
 		try {
 			handlers.addElement(this);
-			while (true) {
-				String msg = i.readUTF();
+			String msg;
+			while ((msg = i.readUTF()) != null) {
 				broadcast(msg);
 			}
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			System.out.print("Client has left or error has occured");
+			//ex.printStackTrace();
 		} finally {
 			handlers.removeElement(this);
 			try {
