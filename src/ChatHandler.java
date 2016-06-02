@@ -24,7 +24,7 @@ public class ChatHandler extends Thread {
 				broadcast(msg);
 			}
 		} catch (IOException ex) {
-			System.out.print("Client has left or error has occured");
+			System.out.println("Client has left or error has occured");
 			//ex.printStackTrace();
 		} finally {
 			handlers.removeElement(this);
