@@ -137,6 +137,7 @@ public class ChatClient extends JFrame implements Runnable {
 			Calendar cal = Calendar.getInstance();
 	        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm ");
 			while (true) {
+				cal = Calendar.getInstance();
 				String line = i.readUTF();
 				output.append(sdf.format(cal.getTime())+line + "\n");
 				output.setCaretPosition(output.getDocument().getLength());
@@ -145,7 +146,7 @@ public class ChatClient extends JFrame implements Runnable {
 			ex.printStackTrace();
 		} finally {
 			listener = null;
-			input.hide();
+			input.setVisible(false);
 			validate();
 			try {
 				o.close();
