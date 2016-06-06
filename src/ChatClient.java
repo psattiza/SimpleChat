@@ -1,4 +1,6 @@
 import java.net.*;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -132,9 +134,11 @@ public class ChatClient extends JFrame implements Runnable {
 
 	public void run() {
 		try {
+			Calendar cal = Calendar.getInstance();
+	        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm ");
 			while (true) {
 				String line = i.readUTF();
-				output.append("\n" + line);
+				output.append(sdf.format(cal.getTime())+line + "\n");
 				output.setCaretPosition(output.getDocument().getLength());
 			}
 		} catch (IOException ex) {
@@ -159,7 +163,6 @@ public class ChatClient extends JFrame implements Runnable {
 				o.flush();
 			} catch (IOException ex) {
 				ex.printStackTrace();
-				listener.stop();
 			}
 			return true;
 		} else if ((e.target == this) && (e.id == Event.WINDOW_DESTROY)) {
