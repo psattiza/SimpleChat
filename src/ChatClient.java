@@ -21,6 +21,7 @@ public class ChatClient extends JFrame implements Runnable {
 	protected DataOutputStream o;
 	protected JTextArea output;
 	protected TextField name;
+	protected TextField subject;
 	protected TextField input;
 	protected Thread listener;
 	protected TextField introName;
@@ -41,7 +42,8 @@ public class ChatClient extends JFrame implements Runnable {
 		output.setLineWrap(true);
 		add("South", input = new TextField());
 		add("North", name = new TextField());
-		name.setText("Enter Name");
+		add("North", subject = new TextField());
+		subject.setText("Enter chat subject");
 		pack();
 		setLocationRelativeTo(null);
 		setVisible(true);
@@ -166,6 +168,17 @@ public class ChatClient extends JFrame implements Runnable {
 				ex.printStackTrace();
 			}
 			return true;
+			
+		} else if ((e.target == subject) && (e.id == Event.ACTION_EVENT)) {
+			try{
+				o.writeUTF(name.getText() + " changed chat subject to: " + subject.getText());
+				this.setTitle(subject.getText());
+				o.flush();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+			return true;
+			
 		} else if ((e.target == this) && (e.id == Event.WINDOW_DESTROY)) {
 			if (listener != null)
 				listener.stop();
