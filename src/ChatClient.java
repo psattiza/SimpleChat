@@ -151,6 +151,7 @@ public class ChatClient extends JFrame implements Runnable {
 				JTextArea msg = new JTextArea();
 				msg.setText(sdf.format(cal.getTime())+line + "\n");
 				msg.setWrapStyleWord(true);
+				msg.setLineWrap(true);
 				msg.setEditable(false);
 				popup.setLayout(new BorderLayout());
 				popup.add(msg);
@@ -159,7 +160,7 @@ public class ChatClient extends JFrame implements Runnable {
 				popup.setSize(200, 100);
 				popup.toFront();
 				popup.repaint();
-				
+				popup.transferFocusBackward();
 				Notification note = new Notification(popup,WindowPosition.BOTTOMRIGHT,25,25,1000);
 				NotificationQueue queue = new NotificationQueue();
 				queue.add(note);
