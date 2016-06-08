@@ -3,13 +3,14 @@ import java.io.*;
 import java.util.*;
 
 public class ChatServer {
+	public String chatName="";
 
 	public ChatServer(int port) throws IOException {
 		ServerSocket server = new ServerSocket(port);
 		while (true) {
 			Socket client = server.accept();
-			System.out.println("Accepted from " + client.getInetAddress());
-			ChatHandler c = new ChatHandler(client);
+			System.out.println("Accepted from '" + client.getInetAddress()+"' Clients:" +(ChatHandler.handlers.size()+1));
+			ChatHandler c = new ChatHandler(client,this);
 			c.start();
 		}
 	}

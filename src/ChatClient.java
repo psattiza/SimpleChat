@@ -41,9 +41,13 @@ public class ChatClient extends JFrame implements Runnable {
 		output.setWrapStyleWord(true);
 		output.setLineWrap(true);
 		add("South", input = new TextField());
-		add("North", name = new TextField());
-		add("North", subject = new TextField());
+		JPanel top = new JPanel();
+		top.setLayout(new FlowLayout());
+		add("North", top);
+		top.add(name = new TextField());
+		top.add(subject = new TextField());
 		subject.setText("Enter chat subject");
+		name.setText("Enter name here");
 		pack();
 		setLocationRelativeTo(null);
 		setVisible(true);

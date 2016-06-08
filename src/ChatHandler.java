@@ -6,12 +6,14 @@ public class ChatHandler extends Thread {
 	protected Socket s;
 	protected DataInputStream i;
 	protected DataOutputStream o;
-	protected static Vector handlers = new Vector();
+	public static Vector handlers = new Vector();
+	private ChatServer server;
 	
-	public ChatHandler(Socket s) throws IOException {
+	public ChatHandler(Socket s, ChatServer chatServer) throws IOException {
 		this.s = s;
 		i = new DataInputStream(new BufferedInputStream(s.getInputStream()));
 		o = new DataOutputStream(new BufferedOutputStream(s.getOutputStream()));
+		server= chatServer;
 	}
 
 	
@@ -20,11 +22,13 @@ public class ChatHandler extends Thread {
 		try {
 			handlers.addElement(this);
 			String msg;
+			
 			while ((msg = i.readUTF()) != null) {
 				broadcast(msg);
+				System.out.print(".");
 			}
 		} catch (IOException ex) {
-			System.out.println("Client has left or error has occured");
+			System.out.println("Client has left or error has occured. "+(handlers.size()-1)+ " remaining clients");
 			//ex.printStackTrace();
 		} finally {
 			handlers.removeElement(this);
