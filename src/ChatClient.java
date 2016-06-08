@@ -146,6 +146,24 @@ public class ChatClient extends JFrame implements Runnable {
 				String line = i.readUTF();
 				output.append(sdf.format(cal.getTime())+line + "\n");
 				output.setCaretPosition(output.getDocument().getLength());
+				if(getState()== Frame.ICONIFIED){
+				JFrame popup = new JFrame();
+				JTextArea msg = new JTextArea();
+				msg.setText(sdf.format(cal.getTime())+line + "\n");
+				msg.setWrapStyleWord(true);
+				msg.setEditable(false);
+				popup.setLayout(new BorderLayout());
+				popup.add(msg);
+				popup.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+				popup.setLocationRelativeTo(null);
+				popup.setSize(200, 100);
+				popup.toFront();
+				popup.repaint();
+				
+				Notification note = new Notification(popup,WindowPosition.BOTTOMRIGHT,25,25,1000);
+				NotificationQueue queue = new NotificationQueue();
+				queue.add(note);
+				}
 			}
 		} catch (IOException ex) {
 			ex.printStackTrace();
@@ -165,22 +183,6 @@ public class ChatClient extends JFrame implements Runnable {
 		if ((e.target == input) && (e.id == Event.ACTION_EVENT)) {
 			try {
 				o.writeUTF(name.getText() + ": " + input.getText());
-				JFrame popup = new JFrame();
-				JTextArea msg = new JTextArea();
-				msg.setText(name.getText() + ": " + input.getText());
-				msg.setWrapStyleWord(true);
-				popup.setLayout(new BorderLayout());
-				popup.add(msg);
-				popup.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-				popup.setLocationRelativeTo(null);
-				//popup.setVisible(true);
-				popup.setSize(200, 100);
-				popup.toFront();
-				popup.repaint();
-				
-				Notification note = new Notification(popup,WindowPosition.BOTTOMRIGHT,25,25,1000);
-				NotificationQueue queue = new NotificationQueue();
-				queue.add(note);
 				
 				input.setText("");
 				o.flush();
