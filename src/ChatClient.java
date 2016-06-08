@@ -1,4 +1,6 @@
 import java.net.*;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -14,11 +16,15 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import net.sf.jcarrierpigeon.*;
+import org.jdesktop.*;
+
 public class ChatClient extends JFrame implements Runnable {
 	protected DataInputStream i;
 	protected DataOutputStream o;
 	protected JTextArea output;
 	protected TextField name;
+	protected TextField subject;
 	protected TextField input;
 	protected Thread listener;
 	protected TextField introName;
@@ -39,7 +45,8 @@ public class ChatClient extends JFrame implements Runnable {
 		output.setLineWrap(true);
 		add("South", input = new TextField());
 		add("North", name = new TextField());
-		name.setText("Enter Name");
+		add("North", subject = new TextField());
+		subject.setText("Enter chat subject");
 		pack();
 		setLocationRelativeTo(null);
 		setVisible(true);
@@ -132,16 +139,19 @@ public class ChatClient extends JFrame implements Runnable {
 
 	public void run() {
 		try {
+			Calendar cal = Calendar.getInstance();
+	        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm ");
 			while (true) {
+				cal = Calendar.getInstance();
 				String line = i.readUTF();
-				output.append("\n" + line);
+				output.append(sdf.format(cal.getTime())+line + "\n");
 				output.setCaretPosition(output.getDocument().getLength());
 			}
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		} finally {
 			listener = null;
-			input.hide();
+			input.setVisible(false);
 			validate();
 			try {
 				o.close();
@@ -155,13 +165,40 @@ public class ChatClient extends JFrame implements Runnable {
 		if ((e.target == input) && (e.id == Event.ACTION_EVENT)) {
 			try {
 				o.writeUTF(name.getText() + ": " + input.getText());
+				JFrame popup = new JFrame();
+				JTextArea msg = new JTextArea();
+				msg.setText(name.getText() + ": " + input.getText());
+				msg.setWrapStyleWord(true);
+				popup.setLayout(new BorderLayout());
+				popup.add(msg);
+				popup.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+				popup.setLocationRelativeTo(null);
+				//popup.setVisible(true);
+				popup.setSize(200, 100);
+				popup.toFront();
+				popup.repaint();
+				
+				Notification note = new Notification(popup,WindowPosition.BOTTOMRIGHT,25,25,1000);
+				NotificationQueue queue = new NotificationQueue();
+				queue.add(note);
+				
 				input.setText("");
 				o.flush();
 			} catch (IOException ex) {
 				ex.printStackTrace();
-				listener.stop();
 			}
 			return true;
+			
+		} else if ((e.target == subject) && (e.id == Event.ACTION_EVENT)) {
+			try{
+				o.writeUTF(name.getText() + " changed chat subject to: " + subject.getText());
+				this.setTitle(subject.getText());
+				o.flush();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+			return true;
+			
 		} else if ((e.target == this) && (e.id == Event.WINDOW_DESTROY)) {
 			if (listener != null)
 				listener.stop();
@@ -176,5 +213,6 @@ public class ChatClient extends JFrame implements Runnable {
 			throw new RuntimeException("Syntax: ChatClient  ");
 		Socket s = new Socket(args[0], Integer.parseInt(args[1]));
 		new ChatClient("Chat " + args[0] + ":" + args[1], s.getInputStream(), s.getOutputStream());
+		
 	}
 }
