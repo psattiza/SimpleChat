@@ -3,6 +3,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -15,6 +16,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+
+import net.sf.jcarrierpigeon.*;
+import org.jdesktop.*;
 
 public class ChatClient extends JFrame implements Runnable {
 	protected DataInputStream i;
@@ -55,11 +59,15 @@ public class ChatClient extends JFrame implements Runnable {
 		input.requestFocus();
 		listener = new Thread(this);
 		listener.start();
+		
+		// iconURL is null when not found
+		ImageIcon icon = new ImageIcon("src/bear2.png");
+		setIconImage(icon.getImage());
 
 		nameScreen = new JFrame();
 		introName = new TextField();
 		introName.setEditable(true);
-		introName.addActionListener( new AbstractAction(){
+		introName.addActionListener(new AbstractAction() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -71,9 +79,9 @@ public class ChatClient extends JFrame implements Runnable {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				ChatClient.this.nameScreen.dispose();				
+				ChatClient.this.nameScreen.dispose();
 			}
-			
+
 		});
 		introName.setText("Enter Name, Ya Dingus!");
 		nameScreen.setLayout(new BorderLayout());
@@ -89,13 +97,13 @@ public class ChatClient extends JFrame implements Runnable {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				
+
 			}
 		});
 		JButton b = new JButton();
 		nameScreen.add("South", b);
 		b.setText("SetName");
-		b.addActionListener(new ActionListener(){
+		b.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				ChatClient.this.name.setText(ChatClient.this.introName.getText());
@@ -108,7 +116,7 @@ public class ChatClient extends JFrame implements Runnable {
 				}
 				ChatClient.this.nameScreen.dispose();
 			}
-			
+
 		});
 		nameScreen.setLocationRelativeTo(null);
 		nameScreen.setVisible(true);
@@ -147,6 +155,25 @@ public class ChatClient extends JFrame implements Runnable {
 				String line = i.readUTF();
 				output.append(sdf.format(cal.getTime())+line + "\n");
 				output.setCaretPosition(output.getDocument().getLength());
+				if (getState() == Frame.ICONIFIED) {
+					JFrame popup = new JFrame();
+					JTextArea msg = new JTextArea();
+					msg.setText(sdf.format(cal.getTime()) + line + "\n");
+					msg.setWrapStyleWord(true);
+					msg.setLineWrap(true);
+					msg.setEditable(false);
+					popup.setLayout(new BorderLayout());
+					popup.add(msg);
+					popup.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+					popup.setLocationRelativeTo(null);
+					popup.setSize(200, 100);
+					popup.toFront();
+					popup.repaint();
+					popup.transferFocusBackward();
+					Notification note = new Notification(popup, WindowPosition.BOTTOMRIGHT, 25, 25, 1000);
+					NotificationQueue queue = new NotificationQueue();
+					queue.add(note);
+				}
 			}
 		} catch (IOException ex) {
 			ex.printStackTrace();
@@ -166,13 +193,13 @@ public class ChatClient extends JFrame implements Runnable {
 		if ((e.target == input) && (e.id == Event.ACTION_EVENT)) {
 			try {
 				o.writeUTF(name.getText() + ": " + input.getText());
+
 				input.setText("");
 				o.flush();
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
 			return true;
-			
 		} else if ((e.target == subject) && (e.id == Event.ACTION_EVENT)) {
 			try{
 				o.writeUTF(name.getText() + " changed chat subject to: " + subject.getText());
@@ -182,7 +209,6 @@ public class ChatClient extends JFrame implements Runnable {
 				ex.printStackTrace();
 			}
 			return true;
-			
 		} else if ((e.target == this) && (e.id == Event.WINDOW_DESTROY)) {
 			if (listener != null)
 				listener.stop();
@@ -197,5 +223,6 @@ public class ChatClient extends JFrame implements Runnable {
 			throw new RuntimeException("Syntax: ChatClient  ");
 		Socket s = new Socket(args[0], Integer.parseInt(args[1]));
 		new ChatClient("Chat " + args[0] + ":" + args[1], s.getInputStream(), s.getOutputStream());
+
 	}
 }
