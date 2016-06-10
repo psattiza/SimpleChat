@@ -2,10 +2,14 @@ import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -16,11 +20,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
+import java.awt.image.BufferedImage;
 
 import net.sf.jcarrierpigeon.*;
 import org.jdesktop.*;
 
 public class ChatClient extends JFrame implements Runnable {
+	private static final Color POP_UP_COLOR = new Color(125,82,48);
 	protected DataInputStream i;
 	protected DataOutputStream o;
 	protected JTextArea output;
@@ -158,18 +165,27 @@ public class ChatClient extends JFrame implements Runnable {
 				if (getState() == Frame.ICONIFIED) {
 					JFrame popup = new JFrame();
 					JTextArea msg = new JTextArea();
+					popup.setLayout(new BorderLayout());
+					msg.setFont(new Font("Arial Black", 80, 12));
 					msg.setText(sdf.format(cal.getTime()) + line + "\n");
 					msg.setWrapStyleWord(true);
 					msg.setLineWrap(true);
 					msg.setEditable(false);
-					popup.setLayout(new BorderLayout());
+					msg.setBorder(BorderFactory.createEmptyBorder(3, 7, 7, 7));
+					msg.setBackground(POP_UP_COLOR);
+					msg.setForeground(Color.WHITE);
 					popup.add(msg);
 					popup.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 					popup.setLocationRelativeTo(null);
-					popup.setSize(200, 100);
+					popup.setUndecorated(true);
+					popup.setSize(200,100);
+					//popup.pack();
 					popup.toFront();
 					popup.repaint();
 					popup.transferFocusBackward();
+					popup.setFocusableWindowState(false);
+					
+					popup.getRootPane().setBorder(BorderFactory.createLineBorder(POP_UP_COLOR,10,true));
 					Notification note = new Notification(popup, WindowPosition.BOTTOMRIGHT, 25, 25, 1000);
 					NotificationQueue queue = new NotificationQueue();
 					queue.add(note);
@@ -225,4 +241,16 @@ public class ChatClient extends JFrame implements Runnable {
 		new ChatClient("Chat " + args[0] + ":" + args[1], s.getInputStream(), s.getOutputStream());
 
 	}
+}
+
+class ImagePanel extends JComponent {
+    private Image image;
+    public ImagePanel(Image image) {
+        this.image = image;
+    }
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        g.drawImage(image, 0, 0, this);
+    }
 }
