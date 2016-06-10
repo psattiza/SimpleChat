@@ -7,12 +7,14 @@ public class ChatServer {
 
 	public ChatServer(int port) throws IOException {
 		ServerSocket server = new ServerSocket(port);
-		while (true) {
+		while (server.isBound()) {
 			Socket client = server.accept();
 			System.out.println("Accepted from '" + client.getInetAddress()+"' Clients:" +(ChatHandler.handlers.size()+1));
-			ChatHandler c = new ChatHandler(client,this);
+			ChatHandler c = new ChatHandler(client);
 			c.start();
 		}
+		System.out.println("Socket Disconneted");
+		server.close();
 	}
 
 	public static void main(String args[]) throws IOException {

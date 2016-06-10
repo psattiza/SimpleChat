@@ -2,14 +2,11 @@ import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -18,16 +15,13 @@ import java.io.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
-import java.awt.image.BufferedImage;
-
 import net.sf.jcarrierpigeon.*;
 import sun.audio.AudioPlayer;
 import sun.audio.AudioStream;
-
-import org.jdesktop.*;
 
 public class ChatClient extends JFrame implements Runnable {
 	private static final Color POP_UP_COLOR = new Color(125,82,48);
@@ -38,7 +32,7 @@ public class ChatClient extends JFrame implements Runnable {
 	protected TextField subject;
 	protected TextField input;
 	protected Thread listener;
-	protected TextField introName;
+	protected JTextArea introName;
 	protected JFrame nameScreen;
 	protected AudioStream griz;
 
@@ -80,42 +74,43 @@ public class ChatClient extends JFrame implements Runnable {
 		setIconImage(icon.getImage());
 
 		nameScreen = new JFrame();
-		introName = new TextField();
+		introName = new JTextArea();
+		introName.setRows(1);
 		introName.setEditable(true);
-		introName.addActionListener(new AbstractAction() {
+		introName.addKeyListener(new KeyListener(){					
 
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				ChatClient.this.name.setText(ChatClient.this.introName.getText());
-				try {
-					ChatClient.this.o.writeUTF(ChatClient.this.name.getText() + " has entered the chat! ");
-					ChatClient.this.o.flush();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				ChatClient.this.nameScreen.dispose();
+			public void keyPressed(KeyEvent evt) {
+				char c = evt.getKeyChar();
+			    if(c == KeyEvent.VK_ENTER)
+			    {
+			    	ChatClient.this.name.setText(ChatClient.this.introName.getText());
+					try {
+						ChatClient.this.o.writeUTF(ChatClient.this.name.getText() + " has entered the chat! ");
+						ChatClient.this.o.flush();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+					ChatClient.this.nameScreen.dispose();
+			    }				
 			}
-
+			@Override
+			public void keyReleased(KeyEvent e) {}
+			@Override
+			public void keyTyped(KeyEvent e) {}
+			
 		});
+		nameScreen.setUndecorated(true);
+		nameScreen.getRootPane().setBorder(BorderFactory.createLineBorder(POP_UP_COLOR,10,true));
 		introName.setText("Enter Name, Ya Dingus!");
+		introName.setForeground(POP_UP_COLOR.brighter().brighter());
+		introName.setBackground(POP_UP_COLOR);
+		
 		nameScreen.setLayout(new BorderLayout());
 		nameScreen.add(introName);
-		nameScreen.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		nameScreen.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
-				ChatClient.this.name.setText(ChatClient.this.introName.getText());
-				try {
-					ChatClient.this.o.writeUTF(ChatClient.this.name.getText() + " has entered the chat! ");
-					ChatClient.this.o.flush();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-
-			}
-		});
 		JButton b = new JButton();
+		b.setBackground(POP_UP_COLOR);
+		b.setForeground(POP_UP_COLOR.brighter().brighter());
 		nameScreen.add("South", b);
 		b.setText("SetName");
 		b.addActionListener(new ActionListener() {
@@ -126,16 +121,14 @@ public class ChatClient extends JFrame implements Runnable {
 					ChatClient.this.o.writeUTF(ChatClient.this.name.getText() + " has entered the chat! ");
 					ChatClient.this.o.flush();
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 				ChatClient.this.nameScreen.dispose();
 			}
-
 		});
 		nameScreen.setLocationRelativeTo(null);
 		nameScreen.setVisible(true);
-		nameScreen.setSize(200, 100);
+		nameScreen.pack();
 		nameScreen.toFront();
 		nameScreen.repaint();
 
@@ -189,6 +182,8 @@ public class ChatClient extends JFrame implements Runnable {
 					msg.setBorder(BorderFactory.createEmptyBorder(3, 7, 7, 7));
 					msg.setBackground(POP_UP_COLOR);
 					msg.setForeground(Color.WHITE);
+					ImageIcon icon = new ImageIcon("src/bear2.png");
+					popup.setIconImage(icon.getImage());
 					popup.add(msg);
 					popup.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 					popup.setLocationRelativeTo(null);
@@ -242,8 +237,6 @@ public class ChatClient extends JFrame implements Runnable {
 			}
 			return true;
 		} else if ((e.target == this) && (e.id == Event.WINDOW_DESTROY)) {
-			if (listener != null)
-				listener.stop();
 			setVisible(false);
 			return true;
 		}

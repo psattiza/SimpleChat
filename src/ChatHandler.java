@@ -6,14 +6,12 @@ public class ChatHandler extends Thread {
 	protected Socket s;
 	protected DataInputStream i;
 	protected DataOutputStream o;
-	public static Vector handlers = new Vector();
-	private ChatServer server;
+	public static Vector<ChatHandler> handlers = new Vector<ChatHandler>();
 	
-	public ChatHandler(Socket s, ChatServer chatServer) throws IOException {
+	public ChatHandler(Socket s) throws IOException {
 		this.s = s;
 		i = new DataInputStream(new BufferedInputStream(s.getInputStream()));
 		o = new DataOutputStream(new BufferedOutputStream(s.getOutputStream()));
-		server= chatServer;
 	}
 
 	
@@ -42,7 +40,7 @@ public class ChatHandler extends Thread {
 
 	protected static void broadcast(String message) {
 		synchronized (handlers) {
-			Enumeration e = handlers.elements();
+			Enumeration<ChatHandler> e = handlers.elements();
 			while (e.hasMoreElements()) {
 				ChatHandler c = (ChatHandler) e.nextElement();
 				try {
@@ -51,7 +49,7 @@ public class ChatHandler extends Thread {
 					}
 					c.o.flush();
 				} catch (IOException ex) {
-					c.stop();
+					ex.printStackTrace();
 				}
 			}
 		}
