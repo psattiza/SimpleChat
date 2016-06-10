@@ -24,6 +24,9 @@ import java.awt.event.WindowFocusListener;
 import java.awt.image.BufferedImage;
 
 import net.sf.jcarrierpigeon.*;
+import sun.audio.AudioPlayer;
+import sun.audio.AudioStream;
+
 import org.jdesktop.*;
 
 public class ChatClient extends JFrame implements Runnable {
@@ -37,11 +40,16 @@ public class ChatClient extends JFrame implements Runnable {
 	protected Thread listener;
 	protected TextField introName;
 	protected JFrame nameScreen;
+	protected AudioStream griz;
 
-	public ChatClient(String title, InputStream i, OutputStream o) {
+	public ChatClient(String title, InputStream i, OutputStream o) throws IOException {
 		super(title);
 		this.i = new DataInputStream(new BufferedInputStream(i));
 		this.o = new DataOutputStream(new BufferedOutputStream(o));
+		
+		growl();
+	    
+		
 		setLayout(new BorderLayout());
 		JPanel container = new JPanel();
 		container.setLayout(new BorderLayout());
@@ -153,6 +161,13 @@ public class ChatClient extends JFrame implements Runnable {
 
 	}
 
+	private void growl() throws IOException {
+		String gongFile = "src/grizzlybear.wav";
+	    InputStream in = new FileInputStream(gongFile);	 
+	    AudioStream griz = new AudioStream(in);
+	    AudioPlayer.player.start(griz);		
+	}
+
 	public void run() {
 		try {
 			Calendar cal = Calendar.getInstance();
@@ -189,6 +204,7 @@ public class ChatClient extends JFrame implements Runnable {
 					Notification note = new Notification(popup, WindowPosition.BOTTOMRIGHT, 25, 25, 1000);
 					NotificationQueue queue = new NotificationQueue();
 					queue.add(note);
+					growl();
 				}
 			}
 		} catch (IOException ex) {
@@ -241,16 +257,4 @@ public class ChatClient extends JFrame implements Runnable {
 		new ChatClient("Chat " + args[0] + ":" + args[1], s.getInputStream(), s.getOutputStream());
 
 	}
-}
-
-class ImagePanel extends JComponent {
-    private Image image;
-    public ImagePanel(Image image) {
-        this.image = image;
-    }
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        g.drawImage(image, 0, 0, this);
-    }
 }
