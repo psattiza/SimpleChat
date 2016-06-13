@@ -2,7 +2,7 @@ import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import javax.swing.AbstractAction;
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -19,6 +19,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+
 import net.sf.jcarrierpigeon.*;
 import sun.audio.AudioPlayer;
 import sun.audio.AudioStream;
@@ -42,7 +44,6 @@ public class ChatClient extends JFrame implements Runnable {
 		this.o = new DataOutputStream(new BufferedOutputStream(o));
 		
 		growl();
-	    
 		
 		setLayout(new BorderLayout());
 		JPanel container = new JPanel();
@@ -166,8 +167,8 @@ public class ChatClient extends JFrame implements Runnable {
 			Calendar cal = Calendar.getInstance();
 	        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm ");
 			while (true) {
-				cal = Calendar.getInstance();
 				String line = i.readUTF();
+				cal = Calendar.getInstance();
 				output.append(sdf.format(cal.getTime())+line + "\n");
 				output.setCaretPosition(output.getDocument().getLength());
 				if (getState() == Frame.ICONIFIED) {
@@ -250,4 +251,35 @@ public class ChatClient extends JFrame implements Runnable {
 		new ChatClient("Chat " + args[0] + ":" + args[1], s.getInputStream(), s.getOutputStream());
 
 	}
+	
+	public class ImagePanel extends JPanel{
+
+	    private BufferedImage image;
+	    
+	    public ImagePanel(){
+	    	this("src/bear2.png");
+	    }
+
+	    public ImagePanel(String path) {
+	       try {                
+	          image = ImageIO.read(new File(path));
+	       } catch (IOException ex) {
+	            // handle exception...
+	       }
+	    }
+	    
+	    @Override
+        public Dimension getPreferredSize() {
+            return image == null ? super.getPreferredSize() : new Dimension(image.getWidth(), image.getHeight());
+        }
+
+	    @Override
+	    protected void paintComponent(Graphics g) {
+	        super.paintComponent(g);
+	        g.drawImage(image, 0, 0, null); // see javadoc for more info on the parameters            
+	    }
+
+	}
+	
 }
+
