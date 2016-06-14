@@ -1,0 +1,6 @@
+make 
+	to compile classes
+make client 
+	to connect to paul's server
+make clean
+	to clean the .class files
